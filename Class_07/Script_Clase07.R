@@ -41,9 +41,11 @@ library(ggplot2)
 comunas_rm<-mapa_comunas[mapa_comunas$codigo_region==13,]
 
 comunas_rm<-merge(x = comunas_rm,y = COVID[`Codigo region`==13,],by.x="codigo_comuna",by.y="Codigo comuna",all.x=TRUE,sort=F)
+comunas_rm<- st_sf(comunas_rm)
 
 comunas_rm<-as_Spatial(comunas_rm)
-
+class(comunas_rm)
+install.packages("spdep")
 library(spdep)
 
 nbs<-poly2nb(comunas_rm,queen = T)
@@ -53,10 +55,11 @@ w_rm<-nb2listw(nbs,style = "W")
 plot(comunas_rm)
 plot(nbs,coordinates(comunas_rm),add=T,col='blue',pch=".")
 
-comunas_rm$Confirmados_2020.04.17_sl<-lag.listw(w_rm,comunas_rm$Confirmados_2020.04.17)
+comunas_rm@data$Confirmados_2020.04.17_sl<-lag.listw(w_rm,comunas_rm@data$Confirmados_2020.04.17)
+View(comunas_rm@data[,c("Comuna", "Confirmados_2020.04.17", "Confirmados_2020.04.17_sl")])
 
 plot(comunas_rm$Confirmados_2020.04.17,comunas_rm$Confirmados_2020.04.17_sl)
-identify(comunas_rm$Confirmados_2020.04.17,comunas_rm$Confirmados_2020.04.17_sl, comunas_rm$Comuna, cex = 0.8)
+identify(comunas_rm$Confirmados_2020.04.17,comunas_rm$Confirmados_2020.04.17_sl, comunas_rm$Comuna, cex = 0.6)
 
 # Global Moran's I    
 
